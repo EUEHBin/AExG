@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="app_name">AExG</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">Send</string>
+    <string name="not_connected">You are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+    <string name="title_connecting">connecting&#8230;</string>
+    <string name="title_connected_to">connected: </string>
+    <string name="title_not_connected">not connected</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">scanning for devices&#8230;</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No devices found</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for devices</string>
+
+    <!-- Options Menu -->
+    <string name="connect">Connect a device</string>
+    <string name="discoverable">Make discoverable</string>
+    <string name="autofit">Toggle Auto-fit</string>
+    <string name="togglelabels">Toggle Labels</string>
+    <string name="settings">Settings</string>
+    <string name="app_parameter">parameter</string>
+
+    <!-- Preferences Menu -->
+    <string name="number_of_channels">Number of channels</string>
+    <string name="num_of_channels_summary">Number of channels to display</string>
+    
+    
+    <string name="channel_selector">Channel</string>
+    <string name="channel_selector_summary">Edit Preferences of this channel</string>
+    
+    <!-- XYChart -->
+    <!--  <string name="app_name">AChartEngine</string> -->
+	<!--<string name="add_values">Add values to the chart</string>    -->
+    <string name="add_values">change parameter</string>
+    <string name="x">X</string>
+	<string name="y">Y</string>
+	<string name="start">Start</string>
+	<string name="stop">Stop</string>
+	<string name="new_series">New series</string>
+	
+	<!-- Frequency Cut off -->
+	<string name="fclow_none">Fc Low = None</string>
+	<string name="fclow_0_1">Fc Low = 0.1 Hz</string>
+	<string name="fclow_0_5" >Fc Low = 0.5 Hz</string>
+	<string name="fclow_1_5" >Fc Low = 1.5 Hz</string>
+	<string name="fclow_5"   >Fc Low = 5.0 Hz</string>
+	<string name="fchigh_none">Fc High = None</string>
+	<string name="fchigh_8"   >Fc High = 8.0 Hz</string>
+	<string name="fchigh_10"  >Fc High = 10.0 Hz</string>
+	<string name="fchigh_15"  >Fc High = 15.0 Hz</string>
+	<string name="fchigh_10k">Fc High = 10 kHz</string>
+
+
+</resources>

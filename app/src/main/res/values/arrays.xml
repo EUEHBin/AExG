@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- Preferences Menu -->
+    <string-array name="channel_list">
+        <item name="1">1</item>
+        <item name="2">2</item>
+        <item name="3">3</item>
+        <item name="4">4</item>
+        <item name="5">5</item>
+        <item name="6">6</item>
+        <item name="7">7</item>
+        <item name="8">8</item>
+    </string-array>
+    <string-array name="channel_selector">
+        <item name="1">Channel 1</item>
+        <item name="2">Channel 2</item>
+        <item name="3">Channel 3</item>
+        <item name="4">Channel 4</item>
+        <item name="5">Channel 5</item>
+        <item name="6">Channel 6</item>
+        <item name="7">Channel 7</item>
+        <item name="8">Channel 8</item>
+    </string-array>
+    
+    
+</resources>

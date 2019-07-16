@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+	<ListPreference 
+		android:key="num_channels"
+		android:title="@string/number_of_channels"
+		android:summary="@string/num_of_channels_summary"
+		
+		android:defaultValue="1"
+		 />
+	
+	<ListPreference 
+		android:key="Channel"
+		android:title="@string/number_of_channels"
+		android:summary="@string/channel_selector_summary"
+		android:entries="@array/channel_list"
+		android:defaultValue="1"
+		 />
+	
+	
+
+</PreferenceScreen>
