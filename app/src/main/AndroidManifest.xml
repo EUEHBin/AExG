@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.example.lenovo.myaexg">
-
+    <!--蓝牙权限-->
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <!--在SDCard中创建与删除文件权限-->
     <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS"/>
+    <!--网络-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!--读写内存卡-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!--允许应用程序改变网络状态-->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <!--允许应用程序改变WIFI连接状态-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <!--允许应用程序访问有关的网络信息-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!--允许应用程序访问WIFI网卡的网络信息-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!--位置信息权限-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
 
     <application
         android:allowBackup="true"
