@@ -15,17 +15,13 @@
  */
 
 package com.example.lenovo.myaexg;
-
 import android.Manifest;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,30 +30,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-
 import android.view.MenuItem;
 import android.view.View;
-
 import android.view.ViewGroup.LayoutParams;
-
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
-
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This is the main Activity that displays the current chat session.
@@ -102,23 +90,24 @@ public class BluetoothChat extends AppCompatActivity {
 
     /* Packet construction 包构造 */
     private static final int PACKET_ID_LEN = 1;	/* packet number length 包号长度  */
-    private static final int STATUS_BYTES_LEN = 3;
-    private static final int CHANNELS = 2;
-    private static final int BYTES_PER_CHANNEL = 3;
+    private static final int STATUS_BYTES_LEN = 3; //状态字节长度
+    private static final int CHANNELS = 2; //渠道
+    private static final int BYTES_PER_CHANNEL = 3; //每渠道字节
+    //最大包字节数
     private static final int MAX_NUM_PACKET_BYTES = PACKET_ID_LEN + STATUS_BYTES_LEN + (CHANNELS * BYTES_PER_CHANNEL);
 
     /* Data conversion states  数据转换状态 */
-    private static int data_state;
-    private static final int INVALID_DATA = 0;
-    private static final int FIRST_START_BYTE = 1;
-    private static final int VALID_DATA = 3;
+    private static int data_state; //数据状态
+    private static final int INVALID_DATA = 0; //无效数据
+    private static final int FIRST_START_BYTE = 1; //初始字节
+    private static final int VALID_DATA = 3; //有效数据
 
     /* Data conversion variables  数据转换变量 */
-    private static int packet_count = 0;
-    private static int byte_count = 0;
-    private static int previous_packet_number = 0;
-    private static int current_x_value = 0;
-    private static int update_count = 0;
+    private static int packet_count = 0; //包计数
+    private static int byte_count = 0; //字节计数
+    private static int previous_packet_number = 0; //"以前"包数量
+    private static int current_x_value = 0; //当前x数值
+    private static int update_count = 0; //更新计数
     int ch = 0;
 
     /* Sampling Constants  采样常数 */
@@ -126,12 +115,12 @@ public class BluetoothChat extends AppCompatActivity {
     private static final double Fs = (double) SPS;
     private static final double Ts = 1 / Fs;
 
-    /* LPF Cut-off Variables  LPF截止变量 */
-    private static final double[] LPF1_options = {0, 8.0, 10.0, 15.0, 10000.0};
-    private static int LPF1_options_ptr = 2;
-    private static double LPF1_Fc = LPF1_options[LPF1_options_ptr];
-    private static double LPF1_Tc = 1 / LPF1_Fc;
-    private static double LPF1_RC = LPF1_Tc / (2 * Math.PI);
+    /* LPF Cut-off Variables  低通滤波器截止变量 */
+    private static final double[] LPF1_options = {0, 8.0, 10.0, 15.0, 10000.0};//低通滤波器1选项
+    private static int LPF1_options_ptr = 2; //低通滤波器1选项记录
+    private static double LPF1_Fc = LPF1_options[LPF1_options_ptr];//低通滤波器截止频率
+    private static double LPF1_Tc = 1 / LPF1_Fc; //低通滤波器TC
+    private static double LPF1_RC = LPF1_Tc / (2 * Math.PI);//低通滤波器RC
     private static double LPF1_ALPHA = Ts / (LPF1_RC + Ts);
 
     private static final double[] LPF2_options = {0, 8.0, 10.0, 15.0, 10000.0};
@@ -141,7 +130,7 @@ public class BluetoothChat extends AppCompatActivity {
     private static double LPF2_RC = LPF2_Tc / (2 * Math.PI);
     private static double LPF2_ALPHA = Ts / (LPF2_RC + Ts);
 
-    /* HPF Cut-off Variables  HPF截止变量 */
+    /* HPF Cut-off Variables  高通滤波器截止变量 */
     private static final double[] HPF1_options = {0, 0.1, 0.5, 1.5, 5.0};
     private static int HPF1_options_ptr = 3;
     private static double HPF1_Fc = HPF1_options[HPF1_options_ptr]; //TODO: LPF_options ??
@@ -171,14 +160,14 @@ public class BluetoothChat extends AppCompatActivity {
 
     /* Channel Parameters  通道参数*/
     private static final int CHANNEL_GAIN = 6;
-    private static final double VOLTAGE_RANGE = 2.4;
+    private static final double VOLTAGE_RANGE = 2.4; //电压范围
     private static final double VOLTAGE_DIVISOR = (VOLTAGE_RANGE / (0x7FFFFF * CHANNEL_GAIN)) * 1000;
 
     /* Debug variables  调试变量 */
     private static int previous_ch = 0;
 
-    private boolean autofit_on = false;
-    private boolean labels_on = false;
+    private boolean autofit_on = false; //自动调整
+    private boolean labels_on = false; //标签
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Chart Variables  图表变量
@@ -244,7 +233,7 @@ public class BluetoothChat extends AppCompatActivity {
             yBuffer.add(new ArrayList<Double>());
         }
 
-        if (D) Log.e(TAG, "+++ ON CREATE +++");
+        if (D) Log.e(TAG, "+++ On Created+++");
 
         setContentView(R.layout.main);
 
@@ -319,12 +308,11 @@ public class BluetoothChat extends AppCompatActivity {
 
         }
         mCurrentSeries = mDataset.getSeriesAt(0);
-
+        //开始按钮
         mStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
                     if (!SendingData) {
-//	            	sendMessage("AT102=2\r\n");
                         sendMessage("AT100=1\r\n");
                         SendingData = true;
                         mStart.setText(R.string.stop);
