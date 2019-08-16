@@ -16,7 +16,6 @@
 
 package com.example.lenovo.myaexg;
 
-import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,7 +25,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,7 +52,7 @@ import java.util.ArrayList;
  * This is the main Activity that displays the current chat session.
  * Main Activity
  */
-public class BluetoothChat extends AppCompatActivity {
+public class BluetoothChat extends AppCompatActivity implements View.OnClickListener {
     // Debugging
     private static final String TAG = "BluetoothChat";
     //是否打印log
@@ -160,7 +158,6 @@ public class BluetoothChat extends AppCompatActivity {
     private static boolean LPF2_on = true;
     private static boolean HPF2_on = true;
 
-
     /* Channel Parameters  通道参数*/
     private static final int CHANNEL_GAIN = 6;
     private static final double VOLTAGE_RANGE = 2.4; //电压范围
@@ -226,18 +223,29 @@ public class BluetoothChat extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        for (int i = 0; i < 1; i++) {        //Could be this
-            yBuffer.add(new ArrayList<Double>());
-        }
-
+        setContentView(R.layout.main);
+        //保持屏幕常亮
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (D) {
             Log.e(TAG, "+++ On Created+++");
         }
 
-        setContentView(R.layout.main);
+        initView();
+        initData();
 
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+
+    }
+
+    private void initView() {
         mTitle = (TextView) findViewById(R.id.title_left_text);
         mTitle.setText(R.string.app_name);
 
@@ -256,20 +264,23 @@ public class BluetoothChat extends AppCompatActivity {
             }
         });
 
+        mStart = (Button) popView.findViewById(R.id.start);
+        mFCLow_Button1 = (Button) popView.findViewById(R.id.fclow1);
+        mFCHigh_Button1 = (Button) popView.findViewById(R.id.fchigh1);
+        mFCLow_Button2 = (Button) popView.findViewById(R.id.fclow2);
+        mFCHigh_Button2 = (Button) popView.findViewById(R.id.fchigh2);
 
-        // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mStart.setOnClickListener(this);
+        mFCLow_Button1.setOnClickListener(this);
+        mFCHigh_Button1.setOnClickListener(this);
+        mFCLow_Button2.setOnClickListener(this);
+        mFCHigh_Button2.setOnClickListener(this);
 
-        // If the adapter is null, then Bluetooth is not supported
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
 
-        /***********************************
-         * Chart setup
-         **********************************/
+    }
+
+    private void initData() {
+        yBuffer.add(new ArrayList<Double>());
 
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setBackgroundColor(Color.WHITE);
@@ -291,14 +302,8 @@ public class BluetoothChat extends AppCompatActivity {
         mRenderer.setXLabelsAngle(90);
         mRenderer.setYTitle("mV");
 
-        mStart = (Button) popView.findViewById(R.id.start);
-        mFCLow_Button1 = (Button) popView.findViewById(R.id.fclow1);
-        mFCHigh_Button1 = (Button) popView.findViewById(R.id.fchigh1);
-        mFCLow_Button2 = (Button) popView.findViewById(R.id.fclow2);
-        mFCHigh_Button2 = (Button) popView.findViewById(R.id.fchigh2);
-
         // Create plot with axis  用轴创建绘图
-        for (int i = 0; i < 2; i++) {        // TODO: Change to channels
+        for (int i = 0; i < 2; i++) {
             String seriesTitle = "Channel " + (mDataset.getSeriesCount() + 1);// + (mDataset.getSeriesCount() + 1);
             XYSeries series = new XYSeries(seriesTitle);
             mDataset.addSeries(series);
@@ -309,126 +314,141 @@ public class BluetoothChat extends AppCompatActivity {
 
         }
         mCurrentSeries = mDataset.getSeriesAt(0);
-        //开始按钮
-        mStart.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
-                    if (!SendingData) {
-                        sendMessage("AT100=1\r\n");
-                        SendingData = true;
-                        mStart.setText(R.string.stop);
-                    } else {
-                        sendMessage("AT100=0\r\n");
-                        SendingData = false;
-                        mStart.setText(R.string.start);
-                    }
-                } else {
-                    Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-                    SendingData = false;
-                    mStart.setText(R.string.start);
-                }
-            }
-        });
-        mFCLow_Button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                HPF1_options_ptr = (++HPF1_options_ptr) % HPF1_options.length;
-                switch (HPF1_options_ptr) {
-                    case 0:
-                        mFCLow_Button1.setText(R.string.fclow_none);
-                        break;
-                    case 1:
-                        mFCLow_Button1.setText(R.string.fclow_0_1);
-                        break;
-                    case 2:
-                        mFCLow_Button1.setText(R.string.fclow_0_5);
-                        break;
-                    case 3:
-                        mFCLow_Button1.setText(R.string.fclow_1_5);
-                        break;
-                    case 4:
-                        mFCLow_Button1.setText(R.string.fclow_5);
-                        break;
-                }
-                HPF1_Filter_Config(HPF1_options[HPF1_options_ptr]);
-            }
-        });
-        mFCHigh_Button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LPF1_options_ptr = (++LPF1_options_ptr) % LPF1_options.length;
-                switch (LPF1_options_ptr) {
-                    case 0:
-                        mFCHigh_Button1.setText(R.string.fchigh_none);
-                        break;
-                    case 1:
-                        mFCHigh_Button1.setText(R.string.fchigh_8);
-                        break;
-                    case 2:
-                        mFCHigh_Button1.setText(R.string.fchigh_10);
-                        break;
-                    case 3:
-                        mFCHigh_Button1.setText(R.string.fchigh_15);
-                        break;
-                    case 4:
-                        mFCHigh_Button1.setText(R.string.fchigh_10k);
-                        break;
-                }
-                LPF1_Filter_Config(LPF1_options[LPF1_options_ptr]);
-            }
-        });
 
-        mFCLow_Button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                HPF2_options_ptr = (++HPF2_options_ptr) % HPF2_options.length;
-                switch (HPF2_options_ptr) {
-                    case 0:
-                        mFCLow_Button2.setText(R.string.fclow_none);
-                        break;
-                    case 1:
-                        mFCLow_Button2.setText(R.string.fclow_0_1);
-                        break;
-                    case 2:
-                        mFCLow_Button2.setText(R.string.fclow_0_5);
-                        break;
-                    case 3:
-                        mFCLow_Button2.setText(R.string.fclow_1_5);
-                        break;
-                    case 4:
-                        mFCLow_Button2.setText(R.string.fclow_5);
-                        break;
-                }
-                HPF2_Filter_Config(HPF2_options[HPF2_options_ptr]);
-            }
-        });
-        mFCHigh_Button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LPF2_options_ptr = (++LPF2_options_ptr) % LPF2_options.length;
-                switch (LPF2_options_ptr) {
-                    case 0:
-                        mFCHigh_Button2.setText(R.string.fchigh_none);
-                        break;
-                    case 1:
-                        mFCHigh_Button2.setText(R.string.fchigh_8);
-                        break;
-                    case 2:
-                        mFCHigh_Button2.setText(R.string.fchigh_10);
-                        break;
-                    case 3:
-                        mFCHigh_Button2.setText(R.string.fchigh_15);
-                        break;
-                    case 4:
-                        mFCHigh_Button2.setText(R.string.fchigh_10k);
-                        break;
-                }
-                LPF2_Filter_Config(LPF2_options[LPF2_options_ptr]);
-            }
-        });
+    }
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            //开始按钮
+            case R.id.start:
+                star();
+                break;
+            case R.id.fclow1:
+                mFCLowButton1();
+                break;
+            case R.id.fchigh1:
+                mFCHighButton1();
+                break;
+            case R.id.fclow2:
+                mFCLowButton2();
+                break;
+            case R.id.fchigh2:
+                mFCHighButton2();
+                break;
 
+        }
+    }
+
+    //开始
+    private void star() {
+        if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
+            if (!SendingData) {
+                sendMessage("AT100=1\r\n");
+                SendingData = true;
+                mStart.setText(R.string.stop);
+            } else {
+                sendMessage("AT100=0\r\n");
+                SendingData = false;
+                mStart.setText(R.string.start);
+            }
+        } else {
+            Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            SendingData = false;
+            mStart.setText(R.string.start);
+        }
+    }
+
+    //mFCLow_Button1
+    private void mFCLowButton1() {
+        HPF1_options_ptr = (++HPF1_options_ptr) % HPF1_options.length;
+        switch (HPF1_options_ptr) {
+            case 0:
+                mFCLow_Button1.setText(R.string.fclow_none);
+                break;
+            case 1:
+                mFCLow_Button1.setText(R.string.fclow_0_1);
+                break;
+            case 2:
+                mFCLow_Button1.setText(R.string.fclow_0_5);
+                break;
+            case 3:
+                mFCLow_Button1.setText(R.string.fclow_1_5);
+                break;
+            case 4:
+                mFCLow_Button1.setText(R.string.fclow_5);
+                break;
+        }
+        HPF1_Filter_Config(HPF1_options[HPF1_options_ptr]);
+    }
+
+    //mFCHigh_Button1
+    private void mFCHighButton1() {
+        LPF1_options_ptr = (++LPF1_options_ptr) % LPF1_options.length;
+        switch (LPF1_options_ptr) {
+            case 0:
+                mFCHigh_Button1.setText(R.string.fchigh_none);
+                break;
+            case 1:
+                mFCHigh_Button1.setText(R.string.fchigh_8);
+                break;
+            case 2:
+                mFCHigh_Button1.setText(R.string.fchigh_10);
+                break;
+            case 3:
+                mFCHigh_Button1.setText(R.string.fchigh_15);
+                break;
+            case 4:
+                mFCHigh_Button1.setText(R.string.fchigh_10k);
+                break;
+        }
+        LPF1_Filter_Config(LPF1_options[LPF1_options_ptr]);
+    }
+
+    //mFCLow_Button2
+    private void mFCLowButton2() {
+        HPF2_options_ptr = (++HPF2_options_ptr) % HPF2_options.length;
+        switch (HPF2_options_ptr) {
+            case 0:
+                mFCLow_Button2.setText(R.string.fclow_none);
+                break;
+            case 1:
+                mFCLow_Button2.setText(R.string.fclow_0_1);
+                break;
+            case 2:
+                mFCLow_Button2.setText(R.string.fclow_0_5);
+                break;
+            case 3:
+                mFCLow_Button2.setText(R.string.fclow_1_5);
+                break;
+            case 4:
+                mFCLow_Button2.setText(R.string.fclow_5);
+                break;
+        }
+        HPF2_Filter_Config(HPF2_options[HPF2_options_ptr]);
+    }
+
+    //mFCHigh_Button2
+    private void mFCHighButton2() {
+        LPF2_options_ptr = (++LPF2_options_ptr) % LPF2_options.length;
+        switch (LPF2_options_ptr) {
+            case 0:
+                mFCHigh_Button2.setText(R.string.fchigh_none);
+                break;
+            case 1:
+                mFCHigh_Button2.setText(R.string.fchigh_8);
+                break;
+            case 2:
+                mFCHigh_Button2.setText(R.string.fchigh_10);
+                break;
+            case 3:
+                mFCHigh_Button2.setText(R.string.fchigh_15);
+                break;
+            case 4:
+                mFCHigh_Button2.setText(R.string.fchigh_10k);
+                break;
+        }
+        LPF2_Filter_Config(LPF2_options[LPF2_options_ptr]);
     }
 
     private void LPF1_Filter_Config(double fc) {
@@ -884,6 +904,7 @@ public class BluetoothChat extends AppCompatActivity {
             update_count = 0;
         }
     }
+
 
 }
 
