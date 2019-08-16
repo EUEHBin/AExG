@@ -24,6 +24,7 @@ public class FirstActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_first);
         initView();
         initData();
+
     }
 
     private void initView() {
@@ -36,44 +37,55 @@ public class FirstActivity extends AppCompatActivity implements View.OnClickList
         btnBluetooth.setOnClickListener(this);
 
         mPermissionItems = new ArrayList<>();
+
+        mPermissionItems.add(new PermissionItem(Manifest.permission.READ_EXTERNAL_STORAGE,
+                "读存储卡",R.drawable.permission_ic_storage));
+        mPermissionItems.add(new PermissionItem(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                "写存储卡",R.drawable.permission_ic_storage));
+        mPermissionItems.add(new PermissionItem(Manifest.permission.ACCESS_COARSE_LOCATION,
+                "GPS",R.drawable.permission_ic_sensors));
         mPermissionItems.add(new PermissionItem(Manifest.permission.ACCESS_FINE_LOCATION,
-                "定位", R.drawable.permission_ic_location));
+                "定位",R.drawable.permission_ic_location));
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            //蓝牙
-            case R.id.btn_bluetooth:
-                Intent intent = new Intent(FirstActivity.this, BluetoothChat.class);
-                startActivity(intent);
-                break;
-            //wifi
-            case R.id.btn_wifi:
-                HiPermission.create(this)
-                        .permissions(mPermissionItems)
-                        .checkMutiPermission(new PermissionCallback() {
-                            @Override
-                            public void onClose() {
+    public void onClick(final View v) {
 
-                            }
+        HiPermission.create(this)
+                .permissions(mPermissionItems)
+                .checkMutiPermission(new PermissionCallback() {
+                    @Override
+                    public void onClose() {
 
-                            @Override
-                            public void onFinish() {
+                    }
 
-                            }
+                    @Override
+                    public void onFinish() {
 
-                            @Override
-                            public void onDeny(String permission, int position) {
+                        switch (v.getId()) {
+                            //蓝牙
+                            case R.id.btn_bluetooth:
+                                Intent intent = new Intent(FirstActivity.this, BluetoothChat.class);
+                                startActivity(intent);
+                                break;
+                            //wifi
+                            case R.id.btn_wifi:
 
-                            }
+                                break;
+                        }
 
-                            @Override
-                            public void onGuarantee(String permission, int position) {
+                    }
 
-                            }
-                        });
-                break;
-        }
+                    @Override
+                    public void onDeny(String permission, int position) {
+
+                    }
+
+                    @Override
+                    public void onGuarantee(String permission, int position) {
+
+                    }
+                });
+
     }
 }

@@ -15,6 +15,7 @@
  */
 
 package com.example.lenovo.myaexg;
+
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -39,12 +40,14 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+
 import java.util.ArrayList;
 
 /**
@@ -224,16 +227,14 @@ public class BluetoothChat extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-
 
         for (int i = 0; i < 1; i++) {        //Could be this
             yBuffer.add(new ArrayList<Double>());
         }
 
-        if (D) Log.e(TAG, "+++ On Created+++");
+        if (D) {
+            Log.e(TAG, "+++ On Created+++");
+        }
 
         setContentView(R.layout.main);
 
