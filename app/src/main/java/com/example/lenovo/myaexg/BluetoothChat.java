@@ -226,9 +226,6 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.main);
         //保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (D) {
-            Log.e(TAG, "+++ On Created+++");
-        }
 
         initView();
         initData();

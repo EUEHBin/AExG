@@ -30,14 +30,28 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="9"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_tcp"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TCP"/>
+            android:layout_height="wrap_content">
+
+
+            <Button
+                android:id="@+id/btn_tcp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TCP"/>
+
+            <Button
+                android:id="@+id/btn_tcp_disconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TCP_disconnect"/>
+
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/tv_tcp"

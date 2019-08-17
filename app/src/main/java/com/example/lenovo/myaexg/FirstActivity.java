@@ -69,7 +69,8 @@ public class FirstActivity extends AppCompatActivity implements View.OnClickList
                                 break;
                             //wifi
                             case R.id.btn_wifi:
-
+                                Intent intent1 = new Intent(FirstActivity.this,UdpToTcpActivity.class);
+                                startActivity(intent1);
                                 break;
                         }
 
