@@ -1,4 +1,4 @@
-package com.example.lenovo.myaexg;
+package com.example.lenovo.myaexg.wifi;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.lenovo.myaexg.R;
 import com.example.lenovo.myaexg.tcp.TaskCenter;
 import com.example.lenovo.myaexg.udp.UDPBuild;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.lenovo.myaexg;
+package com.example.lenovo.myaexg.bluetooth;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -38,6 +38,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.lenovo.myaexg.R;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -88,7 +90,6 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     private BluetoothAdapter mBluetoothAdapter = null;
     // BluetoothChatService 成员对象
     private BluetoothChatService mChatService = null;
-    private WifiChatService mWifiChatService = null;
 
     /* Packet construction 包构造 */
     private static final int PACKET_ID_LEN = 1;	/* packet number length 包号长度  */
@@ -200,7 +201,6 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     private PopupWindow mWindow;
     private TextView mTvChangePar;
 
-    private String TYPE = "";
 
 
     @Override
@@ -230,21 +230,18 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         //保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Intent intent = getIntent();
-        TYPE = intent.getStringExtra("Type");
 
         initView();
         initData();
 
-        if ("bluetooth".equals(TYPE)) {
 
-            // Get local Bluetooth adapter
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            // If the adapter is null, then Bluetooth is not supported
-            if (mBluetoothAdapter == null) {
-                Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-                finish();
-                return;
-            }
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
 
     }
@@ -344,47 +341,21 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     //开始
     private void star() {
 
-        switch (TYPE){
-            case "bluetooth":
-
-                if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
-                    if (!SendingData) {
-                        sendMessage("AT100=1\r\n");
-                        SendingData = true;
-                        mStart.setText(R.string.stop);
-                    } else {
-                        sendMessage("AT100=0\r\n");
-                        SendingData = false;
-                        mStart.setText(R.string.start);
-                    }
-                } else {
-                    Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-                    SendingData = false;
-                    mStart.setText(R.string.start);
-                }
-
-                break;
-            case "wifi":
-
-                if (mWifiChatService.getState() == WifiChatService.STATE_CONNECTED) {
-                    if (!SendingData) {
-                        sendMessage("AT100=1\r\n");
-                        SendingData = true;
-                        mStart.setText(R.string.stop);
-                    } else {
-                        sendMessage("AT100=0\r\n");
-                        SendingData = false;
-                        mStart.setText(R.string.start);
-                    }
-                } else {
-                    Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-                    SendingData = false;
-                    mStart.setText(R.string.start);
-                }
-
-                break;
+        if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
+            if (!SendingData) {
+                sendMessage("AT100=1\r\n");
+                SendingData = true;
+                mStart.setText(R.string.stop);
+            } else {
+                sendMessage("AT100=0\r\n");
+                SendingData = false;
+                mStart.setText(R.string.start);
+            }
+        } else {
+            Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            SendingData = false;
+            mStart.setText(R.string.start);
         }
-
 
 
     }
