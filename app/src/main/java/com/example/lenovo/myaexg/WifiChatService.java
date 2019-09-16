@@ -37,7 +37,7 @@ public class WifiChatService {
     //现在开始传出
     private static final int STATE_CONNECTING = 2;
     //远程连接完成
-    private static final int STATE_CONNECTED = 3;
+    public static final int STATE_CONNECTED = 3;
 
     /**
      * 构造函数。 准备新的WifiChat会话。

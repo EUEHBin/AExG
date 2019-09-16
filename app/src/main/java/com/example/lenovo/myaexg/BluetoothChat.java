@@ -88,6 +88,7 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     private BluetoothAdapter mBluetoothAdapter = null;
     // BluetoothChatService 成员对象
     private BluetoothChatService mChatService = null;
+    private WifiChatService mWifiChatService = null;
 
     /* Packet construction 包构造 */
     private static final int PACKET_ID_LEN = 1;	/* packet number length 包号长度  */
@@ -199,6 +200,8 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     private PopupWindow mWindow;
     private TextView mTvChangePar;
 
+    private String TYPE = "";
+
 
     @Override
     protected void onRestoreInstanceState(Bundle savedState) {
@@ -226,34 +229,35 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.main);
         //保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Intent intent = getIntent();
+        TYPE = intent.getStringExtra("Type");
 
         initView();
         initData();
 
-        // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        // If the adapter is null, then Bluetooth is not supported
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+        if ("bluetooth".equals(TYPE)) {
 
+            // Get local Bluetooth adapter
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            // If the adapter is null, then Bluetooth is not supported
+            if (mBluetoothAdapter == null) {
+                Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+        }
 
     }
 
     private void initView() {
         mTitle = (TextView) findViewById(R.id.title_left_text);
         mTitle.setText(R.string.app_name);
-
         mTvChangePar = (TextView) findViewById(R.id.tv_change_par);
-
         View popView = LayoutInflater.from(this).inflate(R.layout.my_pop, null, false);
         mWindow = new PopupWindow(popView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         mWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.ha)));
         mWindow.setOutsideTouchable(true);
         mWindow.setTouchable(true);
-
         mTvChangePar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -339,21 +343,50 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
 
     //开始
     private void star() {
-        if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
-            if (!SendingData) {
-                sendMessage("AT100=1\r\n");
-                SendingData = true;
-                mStart.setText(R.string.stop);
-            } else {
-                sendMessage("AT100=0\r\n");
-                SendingData = false;
-                mStart.setText(R.string.start);
-            }
-        } else {
-            Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-            SendingData = false;
-            mStart.setText(R.string.start);
+
+        switch (TYPE){
+            case "bluetooth":
+
+                if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
+                    if (!SendingData) {
+                        sendMessage("AT100=1\r\n");
+                        SendingData = true;
+                        mStart.setText(R.string.stop);
+                    } else {
+                        sendMessage("AT100=0\r\n");
+                        SendingData = false;
+                        mStart.setText(R.string.start);
+                    }
+                } else {
+                    Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+                    SendingData = false;
+                    mStart.setText(R.string.start);
+                }
+
+                break;
+            case "wifi":
+
+                if (mWifiChatService.getState() == WifiChatService.STATE_CONNECTED) {
+                    if (!SendingData) {
+                        sendMessage("AT100=1\r\n");
+                        SendingData = true;
+                        mStart.setText(R.string.stop);
+                    } else {
+                        sendMessage("AT100=0\r\n");
+                        SendingData = false;
+                        mStart.setText(R.string.start);
+                    }
+                } else {
+                    Toast.makeText(BluetoothChat.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+                    SendingData = false;
+                    mStart.setText(R.string.start);
+                }
+
+                break;
         }
+
+
+
     }
 
     //mFCLow_Button1
@@ -501,12 +534,10 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
     @Override
     public void onStart() {
         super.onStart();
-        if (D) Log.e(TAG, "++ ON START ++");
+        if (D) {
+            Log.e(TAG, "++ ON START ++");
+        }
 
-        // If BT is not on, request that it be enabled.
-        //如果BT未开启，请求启用它
-        // setupChat() will then be called during onActivityResult
-        //然后在onActivityResult期间调用setupChat（）
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
@@ -522,12 +553,7 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         if (D) Log.e(TAG, "+ ON RESUME +");
         if (mBluetoothAdapter.isEnabled()) {
             Log.d(TAG, "++ Enabled? ++");
-            // Performing this check in onResume() covers the case in which BT was
-            // not enabled during onStart(), so we were paused to enable it...
-            // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-            //在onResume（）中执行此检查涵盖了BT的情况
-            //在onStart（）期间未启用，因此我们暂停启用它...
-            //当ACTION_REQUEST_ENABLE活动返回时，将调用// onResume（）。
+
             if (mChatService != null) {
                 // Only if the state is STATE_NONE, do we know that we haven't started already
                 //只有当状态为STATE_NONE时，我们才知道我们还没有开始

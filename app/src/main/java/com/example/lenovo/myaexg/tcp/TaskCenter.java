@@ -11,28 +11,30 @@ import java.net.Socket;
 public class TaskCenter {
     private static TaskCenter instance;
     private static final String TAG = "TaskCenter";
-//    Socket
+    //    Socket
     private Socket socket;
-//    IP地址
+    //    IP地址
     private String ipAddress;
-//    端口号
+    //    端口号
     private int port;
     private Thread thread;
-//    Socket输出流
+    //    Socket输出流
     private OutputStream outputStream;
-//    Socket输入流
+    //    Socket输入流
     private InputStream inputStream;
-//    连接回调
+    //    连接回调
     private OnServerConnectedCallbackBlock connectedCallback;
-//    断开连接回调(连接失败)
+    //    断开连接回调(连接失败)
     private OnServerDisconnectedCallbackBlock disconnectedCallback;
-//    接收信息回调
+    //    接收信息回调
     private OnReceiveCallbackBlock receivedCallback;
-//    构造函数私有化
+
+    //    构造函数私有化
     private TaskCenter() {
         super();
     }
-//    提供一个全局的静态方法
+
+    //    提供一个全局的静态方法
     public static TaskCenter sharedCenter() {
         if (instance == null) {
             synchronized (TaskCenter.class) {
@@ -43,11 +45,12 @@ public class TaskCenter {
         }
         return instance;
     }
+
     /**
      * 通过IP地址(域名)和端口进行连接
      *
-     * @param ipAddress  IP地址(域名)
-     * @param port       端口
+     * @param ipAddress IP地址(域名)
+     * @param port      端口
      */
     public void connect(final String ipAddress, final int port) {
 
@@ -66,16 +69,16 @@ public class TaskCenter {
                         outputStream = socket.getOutputStream();
                         inputStream = socket.getInputStream();
                         receive();
-                        Log.i(TAG,"连接成功");
-                    }else {
-                        Log.i(TAG,"连接失败");
+                        Log.i(TAG, "连接成功");
+                    } else {
+                        Log.i(TAG, "连接失败");
                         if (disconnectedCallback != null) {
                             disconnectedCallback.callback(new IOException("连接失败"));
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e(TAG,"连接异常");
+                    Log.e(TAG, "连接异常");
                     if (disconnectedCallback != null) {
                         disconnectedCallback.callback(e);
                     }
@@ -84,18 +87,21 @@ public class TaskCenter {
         });
         thread.start();
     }
+
     /**
      * 判断是否连接
      */
     public boolean isConnected() {
         return socket.isConnected();
     }
+
     /**
      * 连接
      */
     public void connect() {
-        connect(ipAddress,port);
+        connect(ipAddress, port);
     }
+
     /**
      * 断开连接
      */
@@ -116,6 +122,7 @@ public class TaskCenter {
             }
         }
     }
+
     /**
      * 接收数据
      */
@@ -136,16 +143,17 @@ public class TaskCenter {
                         receivedCallback.callback(str);
                     }
                 }
-                Log.i(TAG,"接收成功");
+                Log.i(TAG, "接收成功");
             } catch (IOException e) {
-                Log.i(TAG,"接收失败");
+                Log.i(TAG, "接收失败");
             }
         }
     }
+
     /**
      * 发送数据
      *
-     * @param data  数据
+     * @param data 数据
      */
     public void send(final byte[] data) {
         new Thread(new Runnable() {
@@ -155,10 +163,10 @@ public class TaskCenter {
                     try {
                         outputStream.write(data);
                         outputStream.flush();
-                        Log.i(TAG,"发送成功");
+                        Log.i(TAG, "发送成功");
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Log.i(TAG,"发送失败");
+                        Log.i(TAG, "发送失败");
                     }
                 } else {
                     connect();
@@ -167,15 +175,18 @@ public class TaskCenter {
         }).start();
 
     }
+
     /**
      * 回调声明
      */
     public interface OnServerConnectedCallbackBlock {
         void callback();
     }
+
     public interface OnServerDisconnectedCallbackBlock {
         void callback(IOException e);
     }
+
     public interface OnReceiveCallbackBlock {
         void callback(String receicedMessage);
     }
@@ -191,6 +202,7 @@ public class TaskCenter {
     public void setReceivedCallback(OnReceiveCallbackBlock receivedCallback) {
         this.receivedCallback = receivedCallback;
     }
+
     /**
      * 移除回调
      */

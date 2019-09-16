@@ -19,6 +19,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * https://www.jianshu.com/p/d8fe6e3fc00b
+ * https://www.jianshu.com/p/965c14febf11
+ */
 public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickListener, UDPBuild.OnUDPReceiveCallbackBlock {
     private Button btnUdp, btnTcp,btnTcpDisconnect;
     private TextView tvUdp, tvTcp;
@@ -86,7 +90,6 @@ public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickL
         switch (v.getId()) {
             //TCP
             case R.id.btn_tcp:
-
                 TaskCenter.sharedCenter().connect(tvUdp.getText().toString(),8899);
                 break;
             case R.id.btn_tcp_disconnect:
@@ -112,6 +115,7 @@ public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickL
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    //获取到TCP的IP地址并设置
                     tvUdp.setText(list.get(0));
                 }
             });

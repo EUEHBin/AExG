@@ -65,11 +65,13 @@ public class FirstActivity extends AppCompatActivity implements View.OnClickList
                             //蓝牙
                             case R.id.btn_bluetooth:
                                 Intent intent = new Intent(FirstActivity.this, BluetoothChat.class);
+                                intent.putExtra("Type","bluetooth");
                                 startActivity(intent);
                                 break;
                             //wifi
                             case R.id.btn_wifi:
                                 Intent intent1 = new Intent(FirstActivity.this,UdpToTcpActivity.class);
+                                intent1.putExtra("Type","wifi");
                                 startActivity(intent1);
                                 break;
                         }
