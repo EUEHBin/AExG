@@ -32,7 +32,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".wifi.MpAndroidChart"
+            android:name=".wifi.UdpToTcpActivity"
             android:configChanges="orientation|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -47,7 +47,7 @@
             android:theme="@android:style/Theme.Dialog"/>
         <activity android:name=".bluetooth.BluetoothChat">
         </activity>
-        <activity android:name=".wifi.UdpToTcpActivity">
+        <activity android:name=".wifi.MpAndroidChart">
         </activity>
         <activity android:name=".FirstActivity">
         </activity>

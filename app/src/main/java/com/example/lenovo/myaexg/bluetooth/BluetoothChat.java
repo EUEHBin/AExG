@@ -234,7 +234,6 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         initView();
         initData();
 
-
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // If the adapter is null, then Bluetooth is not supported
