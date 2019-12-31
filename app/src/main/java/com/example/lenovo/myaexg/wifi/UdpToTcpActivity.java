@@ -18,6 +18,7 @@ import com.example.lenovo.myaexg.tcp.TaskCenter;
 import com.example.lenovo.myaexg.udp.UDPBuild;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -100,13 +101,18 @@ public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickL
 
             }
         });
-        //数据
+        //TCP连接获取到的数据
         TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
+
             @Override
-            public void callback(final String receicedMessage) {
+            public void callback(final byte[] receicedMessage, final int arg1) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("MyAexgTag", Arrays.toString(receicedMessage));
+
+//                        Log.d("MyAexgTag",strToASCII(String.valueOf(receicedMessage)));
+                        WifiDataCalculation.changeData(receicedMessage, arg1);
 //                        tvTcp.setText(strToASCII(receicedMessage));
                     }
                 });
@@ -114,6 +120,12 @@ public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TaskCenter.sharedCenter().disconnect();
     }
 
     @Override
@@ -165,11 +177,17 @@ public class UdpToTcpActivity extends AppCompatActivity implements View.OnClickL
                 }
             });
         } else {
-            Toast.makeText(UdpToTcpActivity.this, "获取地址失败", Toast.LENGTH_SHORT).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UdpToTcpActivity.this, "获取地址失败", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
     private void sendMessage() {
+        //发送UDP请求 之后回调到OnParserComplete方法
         mUDPBuild.sendMessage("www.usr.cn");
     }
 

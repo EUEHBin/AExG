@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 
 public class TaskCenter {
@@ -131,24 +132,57 @@ public class TaskCenter {
             try {
                 /**得到的是16进制数，需要进行解析*/
                 byte[] bt = new byte[1024];
+
 //                获取接收到的字节和字节数
                 int length = inputStream.read(bt);
+                Log.d("myTag", "--------------------------");
+                Log.d("myTag", "length:"+length);
+                Log.d("myTag", "--------------------------");
+
+
 //                获取正确的字节
                 byte[] bs = new byte[length];
                 System.arraycopy(bt, 0, bs, 0, length);
 
-                String str = new String(bs, "UTF-8");
+                Log.d("MyTagG","10进制数组**************************************");
+                Log.d("MyTagG",Arrays.toString(bs));
+                Log.d("MyTagG","************************************************");
+
+                String str = new String(bs);
+
+                Log.d("MyTagG","16进制------------------------------------------");
+                Log.d("MyTagG",bytesToHex(bs));
+                Log.d("MyTagG","------------------------------------------------");
+
+
+
                 if (str != null) {
                     if (receivedCallback != null) {
-                        receivedCallback.callback(str);
+                        receivedCallback.callback(bt, length);
                     }
                 }
-                Log.i(TAG, "接收成功");
+
+
+                Log.d("myTag", "接收成功");
             } catch (IOException e) {
-                Log.i(TAG, "接收失败");
+                Log.d("myTag", "接收失败");
             }
         }
     }
+
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        for(int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if(hex.length() < 2){
+                sb.append(0);
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
+    }
+
 
     /**
      * 发送数据
@@ -187,8 +221,11 @@ public class TaskCenter {
         void callback(IOException e);
     }
 
+    //    public interface OnReceiveCallbackBlock {
+//        void callback(String receicedMessage);
+//    }
     public interface OnReceiveCallbackBlock {
-        void callback(String receicedMessage);
+        void callback(byte[] receicedMessage, int arg1);
     }
 
     public void setConnectedCallback(OnServerConnectedCallbackBlock connectedCallback) {

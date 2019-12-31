@@ -1,11 +1,14 @@
 package com.example.lenovo.myaexg.wifi;
 
+import android.os.Message;
 import android.util.Log;
 import android.widget.Button;
 
 import com.example.lenovo.myaexg.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Eueh on 2019/9/16.
@@ -24,7 +27,7 @@ public class WifiDataCalculation {
     private static final int MAX_NUM_PACKET_BYTES = PACKET_ID_LEN + STATUS_BYTES_LEN + (CHANNELS * BYTES_PER_CHANNEL);
 
     /* Data conversion states  数据转换状态 */
-    private static int data_state; //数据状态
+    private static int data_state; //数据状态---int的默认值是0
     private static final int INVALID_DATA = 0; //无效数据
     private static final int FIRST_START_BYTE = 1; //初始字节
     private static final int VALID_DATA = 3; //有效数据
@@ -89,9 +92,12 @@ public class WifiDataCalculation {
     private static final double VOLTAGE_RANGE = 2.4; //电压范围
     private static final double VOLTAGE_DIVISOR = (VOLTAGE_RANGE / (0x7FFFFF * CHANNEL_GAIN)) * 1000;
 
+    /* Debug variables  调试变量 */
+    private static int previous_ch = 0;
+
 
     //mFCLow_Button1
-     static void mFCLowButton1(Button mFCLow_Button1) {
+    static void mFCLowButton1(Button mFCLow_Button1) {
         HPF1_options_ptr = (++HPF1_options_ptr) % HPF1_options.length;
         switch (HPF1_options_ptr) {
             case 0:
@@ -232,7 +238,10 @@ public class WifiDataCalculation {
         }
     }
 
-    private static void changeData(msg){
+    public static void changeData(byte[] str, int length) {
+
+        Log.d("MyAexgTag","str:"+str+"\n"+"length:"+length);
+
         // *******************************************
         // Data from BT comes in here, then needs to be
         // placed in a buffer ready for the graphings
@@ -243,10 +252,20 @@ public class WifiDataCalculation {
 
         int x, y;
 
-        byte[] readBuf = (byte[]) msg.obj;
-        for (int i = 0; i < msg.arg1; i++) {
+        byte[] readBuf = (byte[]) str;
+
+        Log.d("MyAexgTag","readBuf:"+ Arrays.toString(readBuf).length());
+
+        for (int i = 0; i < length; i++) {
+            //byte为8bit，转成int会自动补齐高位全为1，为了保证数据的一致性
+            //需要和 0xFF 做 按位与运算
+            // 如字节为 10100101 转成int后，总长度为32，会自动前面补位为1
+            //为了保证数据正常，需要做 & 运算（全为1才是1），保证数据正确性
             data = (int) readBuf[i] & 0xFF;
             list.add(data);
+            //INVALID_DATA = 0; //无效数据
+            //FIRST_START_BYTE = 1; //初始字节
+            //VALID_DATA = 3; //有效数据
             switch (data_state) {
                 case INVALID_DATA:
                     if (data == 170) {
@@ -280,7 +299,7 @@ public class WifiDataCalculation {
                     }
                     packet_count++;
                     if (packet_count >= MAX_NUM_PACKET_BYTES) {
-                        updateChart();
+//                        updateChart();
                         data_state = INVALID_DATA;
                         packet_count = 0;
                         byte_count = 0;
@@ -307,9 +326,17 @@ public class WifiDataCalculation {
         return num;
     }
 
+    public static double to_voltage(double value) {
+        return value * VOLTAGE_DIVISOR;
+    }
+
+    public static double to_time(double value) {
+        return value * Ts;
+    }
+
     public static void plot(int x, int y, int channel) {
         double localx, localy;
-        mCurrentSeries = mDataset.getSeriesAt(channel - 1);
+//        mCurrentSeries = mDataset.getSeriesAt(channel - 1);
         localx = to_time((double) x);
         localy = to_voltage((double) y);
 
@@ -318,24 +345,62 @@ public class WifiDataCalculation {
         } else if (channel == 2) {
             localy = HPF2(LPF2(localy)) + 2;
         }
-        mCurrentSeries.add(localx, localy);
-        if ((mCurrentSeries.getMaxX() - mCurrentSeries.getMinX()) > (to_time((double) mWindowSize - 1))) {
-            mCurrentSeries.remove(0);
+//        mCurrentSeries.add(localx, localy);
+//        if ((mCurrentSeries.getMaxX() - mCurrentSeries.getMinX()) > (to_time((double) mWindowSize - 1))) {
+//            mCurrentSeries.remove(0);
+//        }
+    }
+
+    public static double HPF1(double raw) {
+        if (HPF1_on) {
+            HPF1_filter_value = HPF1_ALPHA * (HPF1_filter_value + raw - filter_input1[0]);
+            filter_input1[0] = raw; // TODO: raw?
+            return HPF1_filter_value;
+        } else {
+            return raw;
+        }
+    }
+
+    public static double LPF1(double raw) {
+        if (LPF1_on) {
+            LPF1_filter_value = LPF1_filter_value + (LPF1_ALPHA * (raw - LPF1_filter_value));
+            return LPF1_filter_value;
+        } else {
+            return raw;
         }
     }
 
 
-    public static void updateChart() {
-        double margin = 0;
-        if (mChartView != null) {
-            if (autofit_on) {
-                margin = (mCurrentSeries.getMaxY() - mCurrentSeries.getMinY()) * 0.2;
-                mRenderer.setYAxisMax(mCurrentSeries.getMaxY() + margin);
-                mRenderer.setYAxisMin(mCurrentSeries.getMinY() - margin);
-            }
-            mChartView.invalidate();
-            update_count = 0;
+    public static double LPF2(double raw) {
+        if (LPF2_on) {
+            LPF2_filter_value = LPF2_filter_value + (LPF2_ALPHA * (raw - LPF2_filter_value));
+            return LPF2_filter_value;
+        } else {
+            return raw;
         }
     }
+
+    public static double HPF2(double raw) {
+        if (HPF2_on) {
+            HPF2_filter_value = HPF2_ALPHA * (HPF2_filter_value + raw - filter_input2[0]);
+            filter_input2[0] = raw; // TODO: raw?
+            return HPF2_filter_value;
+        } else {
+            return raw;
+        }
+    }
+
+//    public static void updateChart() {
+//        double margin = 0;
+//        if (mChartView != null) {
+//            if (autofit_on) {
+//                margin = (mCurrentSeries.getMaxY() - mCurrentSeries.getMinY()) * 0.2;
+//                mRenderer.setYAxisMax(mCurrentSeries.getMaxY() + margin);
+//                mRenderer.setYAxisMin(mCurrentSeries.getMinY() - margin);
+//            }
+//            mChartView.invalidate();
+//            update_count = 0;
+//        }
+//    }
 
 }

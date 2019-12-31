@@ -28,6 +28,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -383,20 +384,27 @@ public class BluetoothChatService {
         public void run() {
             if (D) Log.i(TAG, "BEGIN mConnectedThread");
             setName("ConnectedThread");
-
+            Log.d("MyAexgTag","11111111111111111111111");
             // Keep listening to the InputStream while connected
             //连接时继续收听InputStream
             while (!kill) {
+                Log.d("MyAexgTag","22222222222222222");
                 byte[] buffer = new byte[1024];
                 int bytes;
                 try {
                     // Read from the InputStream 从InputStream中读取
-                    bytes = mmInStream.read(buffer);
+                    bytes= mmInStream.read(buffer);
+
+//                    Log.d("MyAexgTag", Arrays.toString(new int[]{bytes}));
+
                     // Send the obtained bytes to the UI Activity
                     //将获取的字节发送到UI活动
+                    //int what, int arg1, int arg2, Object obj
                     mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, bytes,
                             -1, buffer).sendToTarget();
                 } catch (IOException e) {
+                    Log.d("MyAexgTag", "disconnected");
+
                     if (D) Log.e(TAG, "disconnected", e);
                     connectionLost();
                     break;

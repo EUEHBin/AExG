@@ -49,6 +49,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This is the main Activity that displays the current chat session.
@@ -677,6 +678,7 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
                     int x, y;
 
                     byte[] readBuf = (byte[]) msg.obj;
+
                     for (int i = 0; i < msg.arg1; i++) {
                         data = (int) readBuf[i] & 0xFF;
                         list.add(data);
@@ -795,7 +797,7 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    @Override
+
     public boolean onCreateOptionsMenu(Menu menu) {
         // 这条表示加载菜单文件，第一个参数表示通过那个资源文件来创建菜单
         // 第二个表示将菜单传入那个对象中。这里我们用Menu传入menu
