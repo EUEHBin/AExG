@@ -384,11 +384,11 @@ public class BluetoothChatService {
         public void run() {
             if (D) Log.i(TAG, "BEGIN mConnectedThread");
             setName("ConnectedThread");
-            Log.d("MyAexgTag","11111111111111111111111");
+
             // Keep listening to the InputStream while connected
             //连接时继续收听InputStream
             while (!kill) {
-                Log.d("MyAexgTag","22222222222222222");
+
                 byte[] buffer = new byte[1024];
                 int bytes;
                 try {

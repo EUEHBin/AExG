@@ -679,6 +679,9 @@ public class BluetoothChat extends AppCompatActivity implements View.OnClickList
 
                     byte[] readBuf = (byte[]) msg.obj;
 
+                    Log.d("MyTagss",Arrays.toString(readBuf));
+                    Log.d("MyTagss","大小是："+msg.arg1);
+
                     for (int i = 0; i < msg.arg1; i++) {
                         data = (int) readBuf[i] & 0xFF;
                         list.add(data);

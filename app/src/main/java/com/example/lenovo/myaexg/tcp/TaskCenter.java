@@ -140,7 +140,7 @@ public class TaskCenter {
                 Log.d("myTag", "--------------------------");
 
 
-//                获取正确的字节
+                //获取正确的字节
                 byte[] bs = new byte[length];
                 System.arraycopy(bt, 0, bs, 0, length);
 
